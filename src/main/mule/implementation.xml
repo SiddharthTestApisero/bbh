@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="getAllHotels" doc:id="6a0f8d18-d2c9-4fc8-81f3-dce06e09c54b">
+		<set-variable value="#[%dw 2.0&#10;output application/java&#10;&#10; var HotelName = XmlModule::xpath('//*:HotelName/text()',payload.body.^raw,{})[0]&#10; var CheckInDate = XmlModule::xpath('//*:CheckInDate/text()',payload.body.^raw,{})[0]&#10;&#10;---&#10;{&#10;	HotelName: HotelName,&#10;	CheckInDate: CheckInDate&#10;}]" doc:name="Set Variable" doc:id="636a0597-0049-4a0b-aed8-895e19241d99" variableName="getHotelData"/>
+		<db:select doc:name="Select" doc:id="15cd32b7-7389-4c1e-9495-fc428692c071" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from Hotel_Details where HotelName = :HotelName and CheckInDate = :CheckInDate]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{HotelName: vars.getHotelData.HotelName, CheckInDate: vars.getHotelData.CheckInDate}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="f67aa63c-316c-4949-b880-48e516c209bd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/xml
+
+---
+
+	hotels: 
+		hotel: payload map(item,index)->{
+			ID: item.ID,
+			HotelName: item.HotelName,
+			Price: item.Price,
+			CheckInDate: item.CheckInDate as Date {format : "yyyy-MM-dd"},
+			DaysToStay: item.DaysToStay,
+			GuestCount: item.GuestCount
+		
+	}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="2784312f-4828-4878-8d11-b8402586ffac" message="#[payload]" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e7222053-c71c-4422-b35c-9d48bb5128c2" >
+				<set-payload value="#[error.errorMessage]" doc:name="Set Payload" doc:id="6b8ee022-a610-4d84-9de4-c687fc2779b6" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="bookHotel" doc:id="d3782df2-4ea5-48b0-8f7c-1b87ae3fe47a" >
+		<set-variable value="#[%dw 2.0&#10;output application/java&#10;import * from dw::core::Strings&#10;&#10;var ID = XmlModule::xpath('//*:ID/text()',payload.body.^raw,{})[0]&#10; var HotelName = XmlModule::xpath('//*:HotelName/text()',payload.body.^raw,{})[0]&#10; var CheckInDate = XmlModule::xpath('//*:CheckInDate/text()',payload.body.^raw,{})[0]&#10; var DaysToStay = XmlModule::xpath('//*:DaysToStay/text()',payload.body.^raw,{})[0]&#10; var GuestCount = XmlModule::xpath('//*:GuestCount/text()',payload.body.^raw,{})[0]&#10; var BookingID = substringAfter ((random() * 1024), '.')&#10;---&#10;{&#10;	ID: ID,&#10;	HotelName: HotelName,&#10;	CheckInDate: CheckInDate,&#10;	DaysToStay: DaysToStay,&#10;	GuestCount: GuestCount,&#10;	BookingID: ID as String	++ &quot;-&quot; ++&#10;			   CheckInDate  	++  &quot;-&quot; ++&#10;			   BookingID&#10;}]" doc:name="Set Variable" doc:id="926ae256-19ec-47b1-a2fd-f45f00bf5756" variableName="dataHotel"/>
+		<db:insert doc:name="Insert" doc:id="b7eeb826-dc2d-4d13-b584-e16913b99799" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO Hotel_Bookings(ID, HotelName, CheckInDate, DaysToStay,GuestCount,BookingId)
+VALUES (:ID, :HotelName, :CheckInDate,:DaysToStay,:GuestCount,:BookingId)
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+  ID: vars.dataHotel.ID,
+  HotelName: vars.dataHotel.HotelName,
+  CheckInDate: vars.dataHotel.CheckInDate,
+  DaysToStay: vars.dataHotel.DaysToStay,
+  GuestCount: vars.dataHotel.GuestCount,
+  BookingId: vars.dataHotel.BookingID
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="f6001de0-4597-4a7b-8a9e-adfbb58b523d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/xml
+
+---
+
+	hotels: 
+		hotel: {
+			Message: "Welcome, Your Hotel is booked",
+			HotelName: vars.dataHotel.HotelName,
+			BookingID: vars.dataHotel.BookingID
+			
+		}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="791b19e5-a9fe-46e5-8127-d682ad2a4023" message="#[payload]"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a1a04e08-8bf4-475b-ac2a-e1a606a23bb2" >
+				<set-payload value="#[error.errorMessage]" doc:name="Set Payload" doc:id="d10acb2f-f925-4799-a304-0d50cb03ac3e" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

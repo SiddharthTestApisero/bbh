@@ -1,0 +1,19 @@
+<hotels>
+	<hotel>
+		<ID>Hotel01</ID>
+		<HotelName>Taj</HotelName>
+		<Price>16000</Price>
+		<CheckInDate>2022/04/27</CheckInDate>
+		<DaysToStay>5</DaysToStay>
+		<GuestCount>3</GuestCount>
+	</hotel>
+	<hotel>
+		<ID>Hotel02</ID>
+		<HotelName>Taj</HotelName>
+		<Price>9000</Price>
+		<CheckInDate>2022/04/27</CheckInDate>
+		<DaysToStay>4</DaysToStay>
+		<GuestCount>2</GuestCount>
+	</hotel>
+</hotels>
+	

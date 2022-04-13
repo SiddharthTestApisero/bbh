@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<configuration doc:name="Configuration" doc:id="63db4bff-f74b-45f4-9af4-117415ba6a4b" defaultErrorHandler-ref="globalError_Handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="ae40d785-1d2d-49aa-94f8-4b63de691f22" file="config.yaml" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="81143dad-8e2e-4283-a6b7-2bbb8a5f00e3" >
+		<db:my-sql-connection host="${dbDetails.hostname}" port="${dbDetails.port}" user="${dbDetails.username}" password="${dbDetails.password}" database="${dbDetails.db_name}" />
+	</db:config>
+	<error-handler name="globalError_Handler" doc:id="2a5e7153-bcc4-4e45-93ab-afe182a763ec" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="38d861b5-6719-4721-aab0-f7c806913bab" type="ANY">
+			<set-payload value="#[error.errorMessage]" doc:name="Set Payload" doc:id="09c50705-f530-47df-90e3-d25f99f18453" />
+		</on-error-propagate>
+	</error-handler>
+</mule>

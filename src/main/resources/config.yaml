@@ -1,0 +1,6 @@
+dbDetails: 
+  db_name : "testdbc45"
+  username: "c4ebatch5" 
+  password : "c4ebatch@5"
+  hostname : "db4free.net"
+  port : "3306"
