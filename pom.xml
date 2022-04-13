@@ -39,7 +39,7 @@
 						<password>Sira#2302</password>
 						<!-- Environment Parameter -->
 						<environment>Sandbox</environment>
-						<applicationName>bookMyHotel-sanbox-newSid</applicationName>
+						<applicationName>bookMyHotel-sanbox-newS</applicationName>
 						<businessGroup>Apisero Inc</businessGroup>
 						<workerType>MICRO</workerType>
 						<objectStoreV2>true</objectStoreV2>
