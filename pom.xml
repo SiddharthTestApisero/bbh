@@ -35,8 +35,7 @@
 						<uri>https://anypoint.mulesoft.com</uri>
 						<muleVersion>4.4.0</muleVersion>
 						<!-- Deploy  User Parameter -->
-						<username>SiddharthTest</username>
-						<password>Sira#2302</password>
+						<server>anypointPlatform</server>
 						<!-- Environment Parameter -->
 						<environment>Sandbox</environment>
 						<applicationName>bookMyHotel-sandbox</applicationName>
