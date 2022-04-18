@@ -4,3 +4,8 @@ dbDetails:
   password : "c4ebatch@5"
   hostname : "db4free.net"
   port : "3306"
+ 
+ 
+https:
+   host: "bookmyhotel-sandbox.us-e2.cloudhub.io"
+   port: "8082"
